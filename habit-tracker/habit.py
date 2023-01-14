@@ -155,7 +155,11 @@ class ManageHabit:
                             f"WHERE name = '{name}';")
         db.commit()
 
-        table = get_rows(db=db, thing="name", value=f'{name}')
+        if thing == "name":
+            table = get_rows(db=db, thing="name", value=f'{value}')
+        else:
+            table = get_rows(db=db, thing="name", value=f'{name}')
+
         print(table)
 
     def report_all(self, db_file):
@@ -215,6 +219,7 @@ class ManageHabit:
                        f"WHERE name = '{name}';")
 
         connection.commit()
+        self.report_one(name=name, db_file=db_file)
 
     def streak_days(self, name: str, frequency: str, db_file):
 
