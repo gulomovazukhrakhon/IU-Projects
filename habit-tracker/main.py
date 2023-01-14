@@ -61,12 +61,7 @@ def cli():
                 elif choice == "check":
                     name = questionary.select("Please select:\n",
                                               choices=habit_names(db_file='data.db')).ask().lower()
-                    is_completed = questionary.select("Have you completed this task today? \n",
-                                                      choices=['Yes', 'No']).ask().lower()
-                    if is_completed == "yes":
-                        manage.check(name=name, db_file="data.db")
-                    else:
-                        pass
+                    manage.check(name=name, db_file="data.db")
 
             except sqlite3.OperationalError and ValueError:
                 print("Something went wrong. \nPlease, create a habit first")
