@@ -15,15 +15,10 @@ def cli():
 
         if choice == 'Create a habit':
             name = questionary.text("Please type a name for your new habit: ").ask().lower()
-
             frequency = questionary.select("Frequency for your habit", choices=['daily', 'weekly']).ask()
-
             periodicity = questionary.text("Duration for your habit (e.g 10 days/6 weeks/2 months): ").ask().lower()
-            unitset = questionary.text("Unitset for your habit (e.g. 30 minutes/2 hours): ").ask().lower()
-            start_date = questionary.text("When do you want to start? (DD/MM/YYYY): ").ask()
 
-            create_habit = CreateHabit(name, frequency, periodicity, unitset, start_date)
-
+            create_habit = CreateHabit(name, frequency, periodicity)
             create_habit.add_habit(db_file="data.db")
             print("\n")
 
@@ -37,7 +32,7 @@ def cli():
                     name = questionary.select("Please select:\n",
                                               choices=habit_names(db_file='data.db')).ask().lower()
                     thing = questionary.select("What do you want to change? \n",
-                                               choices=['name', 'frequency']).ask().lower()
+                                               choices=['name', 'frequency', 'periodicity']).ask().lower()
                     value = questionary.text("Please type a new value: ").ask().lower()
 
                     manage.edit(db_file='data.db', name=name, thing=thing, value=value)
@@ -76,7 +71,7 @@ def cli():
                 name = questionary.select("Please select the habit you want to delete: ",
                                           choices=habit_names(db_file='data.db')).ask()
                 delete = DeleteHabit(habit_name=name)
-                delete.delete_habit_manually(db_file="data.db")
+                delete.delete(db_file="data.db")
 
             except sqlite3.OperationalError and ValueError:
                 print("Something went wrong. \nPlease, create a habit first")
