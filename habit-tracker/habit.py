@@ -1,7 +1,5 @@
 from db import *
 import datetime as dt
-from datetime import timedelta
-from dateutil.relativedelta import relativedelta
 
 
 def habit_names(db_file):
@@ -25,18 +23,16 @@ class CreateHabit:
                     the frequency of the habit ("daily", "weekly")
                 periodicity (str):
                     how long the habit lasts ("20 days", "10 weeks", "2 months")
-                unitset (str):
-                    the unit set of the habit ("20 minutes", "10 pages")
                 start_date (str):
                     the start date of the habit (DD/MM/YYYY)
-                end_date (str):
-                    the end date of the habit (DD/MM/YYYY)
                 check_off (int):
                     how many times the habit has been completed
                 last_updated_day (str):
                     last time when the habit completed (DD/MM/YYYY)
                 streak_days (int):
                     counts the number of streak days
+                longest_st_days (int):
+                    counts the number of longest_streak days
 
             Methods:
                 end_date(self, periodicity, date)
@@ -46,56 +42,23 @@ class CreateHabit:
 
     """
 
-    def __init__(self, name: str, frequency: str, periodicity: str, unitset: str, start_date: str):
+    def __init__(self, name: str, frequency: str, periodicity: str):
 
         """
         :param name: the name of the habit
         :param frequency: the frequency of the habit ("daily", "weekly")
         :param periodicity: how long the habit lasts ("20 days", "10 weeks", "2 months")
-        :param unitset: the unit set of the habit ("20 minutes", "10 pages")
-        :param start_date: the start date of the habit (DD/MM/YYYY)
         """
 
         self.name = name
         self.frequency = frequency
         self.periodicity = periodicity
-        self.unitset = unitset
-        self.start_date = start_date
+        self.start_date = dt.datetime.now().strftime("%d/%m/%Y")
 
-        date = self.start_date.replace('/', ' ').split()
-        periodicity = self.periodicity.split()
-        self.end_date = self.end_date(periodicity, date)
         self.check_off = 0
         self.last_updated_day = "-"
         self.streak_days = 0
-
-    def end_date(self, periodicity, date):
-
-        """
-        This function calculates when the habit should end
-
-        :param periodicity: how long the habit lasts ("20 days", "10 weeks", "2 months")
-        :param date: start date in (DDMMYYYY) format without /.
-        :return: end_date
-
-        Parameters are automatically assigned to the function and the function cannot be called directly.
-
-        """
-
-        if periodicity[1] == "days":
-            end_date = (dt.datetime(int(date[2]), int(date[1]), int(date[0])) +
-                        timedelta(days=int(periodicity[0]))).strftime("%d/%m/%Y")
-            return end_date
-
-        elif periodicity[1] == "weeks":
-            end_date = (dt.datetime(int(date[2]), int(date[1]), int(date[0])) +
-                        relativedelta(weeks=int(periodicity[0]))).strftime("%d/%m/%Y")
-            return end_date
-
-        elif periodicity[1] == "months":
-            end_date = (dt.datetime(int(date[2]), int(date[1]), int(date[0])) +
-                        relativedelta(months=int(periodicity[0]))).strftime("%d/%m/%Y")
-            return end_date
+        self.longest_st_days = 0
 
     def add_habit(self, db_file):
 
@@ -105,8 +68,8 @@ class CreateHabit:
 
         db = get_db(name=db_file)
 
-        add_habits(db, self.name, self.frequency, self.periodicity, self.unitset, self.start_date,
-                   self.end_date, self.check_off, self.last_updated_day, self.streak_days)
+        add_habits(db, self.name, self.frequency, self.periodicity, self.start_date,
+                   self.check_off, self.last_updated_day, self.streak_days, self.longest_st_days)
 
         table = get_rows(db=db, thing="name", value=f'{self.name}')
         print(table)
@@ -219,7 +182,6 @@ class ManageHabit:
                        f"WHERE name = '{name}';")
 
         connection.commit()
-        self.report_one(name=name, db_file=db_file)
 
     def streak_days(self, name: str, frequency: str, db_file):
 
@@ -250,15 +212,29 @@ class ManageHabit:
                        f"WHERE name = '{name}';")
         streak_days = list(cursor.fetchone())[0]
 
+        cursor.execute(f"SELECT longest_st_days FROM habit_data "
+                       f"WHERE name = '{name}';")
+        longest_st_days = list(cursor.fetchone())[0]
+
         if difference == last_updated_day:
             cursor.execute(f"UPDATE habit_data SET streak_days = '{streak_days + 1}'"
                            f"WHERE name = '{name}';")
             connection.commit()
+
+            if longest_st_days <= streak_days + 1:
+                longest_st_days += 1
+                cursor.execute(f"UPDATE habit_data SET longest_st_days = '{longest_st_days}'"
+                               f"WHERE name = '{name}';")
+                connection.commit()
         else:
             streak_days = 1
             cursor.execute(f"UPDATE habit_data SET streak_days = '{streak_days}'"
                            f"WHERE name = '{name}';")
             connection.commit()
+            if longest_st_days == 0:
+                cursor.execute(f"UPDATE habit_data SET longest_st_days = '{longest_st_days + 1}'"
+                               f"WHERE name = '{name}';")
+                connection.commit()
 
 
 class PredefinedHabits:
@@ -278,13 +254,12 @@ class PredefinedHabits:
 
 class DeleteHabit:
     """
-        This class will delete a habit(s) manually or automatically after the duration expires.
+        This class will delete a habit(s).
 
             Attribute:
                 habit_name (str):
                     the name of the habit that needs to be deleted
             Methods:
-                delete_habit_manually(self)
                 delete(self)
 
     """
@@ -292,7 +267,7 @@ class DeleteHabit:
     def __init__(self, habit_name: str):
         self.habit_name = habit_name
 
-    def delete_habit_manually(self, db_file):
+    def delete(self, db_file):
         """
         :param db_file: the name of the database file
         This function allows a user to delete a habit manually
@@ -305,16 +280,3 @@ class DeleteHabit:
                        f"WHERE name='{self.habit_name}'")
         connection.commit()
 
-    def delete(self, db_file):
-        """
-        :param db_file: the name of the database file
-        This function deletes a habit automatically after the duration expires.
-        """
-        connection = sqlite3.connect(db_file)
-        cursor = connection.cursor()
-        row_list = habit_names(db_file)
-        for name in row_list:
-            end_date = cursor.execute(f"SELECT end_date FROM habit_data WHERE name='{name}'")
-            if end_date == dt.datetime.now().strftime("%d/%m/%Y"):
-                cursor.execute(f"DELETE * FROM habit_data WHERE name='{name}'")
-                connection.commit()
