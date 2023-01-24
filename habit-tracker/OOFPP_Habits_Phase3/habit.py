@@ -183,6 +183,8 @@ class ManageHabit:
 
         connection.commit()
 
+        self.report_one(name=name, db_file=db_file)
+
     def streak_days(self, name: str, frequency: str, db_file):
 
         """
@@ -279,4 +281,3 @@ class DeleteHabit:
         cursor.execute(f"DELETE FROM habit_data "
                        f"WHERE name='{self.habit_name}'")
         connection.commit()
-
