@@ -70,8 +70,8 @@ def cli():
             try:
                 name = questionary.select("Please select the habit you want to delete: ",
                                           choices=habit_names(db_file='data.db')).ask()
-                delete = DeleteHabit(habit_name=name)
-                delete.delete(db_file="data.db")
+                delete = DeleteHabit()
+                delete.delete(db_file="data.db", name=name)
 
             except sqlite3.OperationalError and ValueError:
                 print("Something went wrong. \nPlease, create a habit first")
