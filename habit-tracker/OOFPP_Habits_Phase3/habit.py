@@ -34,9 +34,7 @@ class CreateHabit:
                 longest_st_days (int):
                     counts the number of longest_streak days
 
-            Methods:
-                end_date(self, periodicity, date)
-                    Calculates when the habit should end
+            Method:
                 add_habit(self)
                     Adds a new habit and stores it in the database
 
@@ -82,22 +80,22 @@ class ManageHabit:
     Additionally, this class is responsible for analytics module.
 
         Methods:
-            edit(self, name, thing, value)
+            edit(self, name: str, thing: str, value: str, db_file)
                 Changes the name and frequency of the specified habit.
 
-            report_all(self)
+            report_all(self, db_file):
                 Shows all habits in a pretty table
 
-            report_one(self, name):
+            report_one(self, name: str, db_file):
                 Shows a specified habit in a pretty table
 
-            report_by_frequency(self, frequency):
+            report_by_frequency(self, frequency: str, db_file):
                 Shows specified habits in a pretty table based on their frequency (daily or weekly)
 
-            check(self, name):
+            check(self, name: str, db_file):
                 The user can mark the habit when it is completed.
 
-            streak_days(self, name, frequency):
+            streak_days(self, name: str, frequency: str, db_file):
                 Counts streak days
     """
 
@@ -266,12 +264,10 @@ class DeleteHabit:
 
     """
 
-    def __init__(self, habit_name: str):
-        self.habit_name = habit_name
-
-    def delete(self, db_file):
+    def delete(self, name: str, db_file):
         """
         :param db_file: the name of the database file
+        :param name: (str) the name of the habit
         This function allows a user to delete a habit manually
         """
 
@@ -279,5 +275,6 @@ class DeleteHabit:
         cursor = connection.cursor()
 
         cursor.execute(f"DELETE FROM habit_data "
-                       f"WHERE name='{self.habit_name}'")
+                       f"WHERE name='{name}'")
         connection.commit()
+ 
