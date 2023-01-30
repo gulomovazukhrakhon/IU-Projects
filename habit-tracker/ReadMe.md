@@ -27,4 +27,4 @@ Download all files from "OOFPP_Habits_Phase3" and open them on your computer usi
 Then you should install all packages from "requirements.txt". Once you have installed them, you can start running the program.
 
 ## User Instruction
-In "OOFPP_Habits_Phase2" you can find the detailed information how to use this app. Or https://drive.google.com/file/d/1cWjtp647U8j2TK6-cUs3lyINVz_iRyYg/view?usp=sharing 
+In "OOFPP_Habits_Phase2" you can find detailed information on how to use this app. Or https://drive.google.com/file/d/1cWjtp647U8j2TK6-cUs3lyINVz_iRyYg/view?usp=sharing 
