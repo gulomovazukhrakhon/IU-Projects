@@ -1,5 +1,5 @@
 # Habit Tracker
-### Table of Contents
+### Table of Content
 
 ##### Information
 ##### Installation 
