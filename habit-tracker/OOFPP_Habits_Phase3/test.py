@@ -1,14 +1,15 @@
 from habit import *
 
 
-class TestHabitTracking:
-
+class TestHabits:
     def test_add_habit(self):
+        """ Tests the “CreateHabit” class. """
         create_habit = CreateHabit(name="coding", frequency="daily", periodicity="15 months")
 
         create_habit.add_habit(db_file="predefined-habits.db")
 
     def test_manage_habit(self):
+        """ Tests the “ManageHabit” class. """
         manage_habit = ManageHabit()
         manage_habit.edit(name="workout", thing="periodicity", value="6 months", db_file="predefined-habits.db")
         manage_habit.check(name="workout", db_file="predefined-habits.db")
@@ -17,5 +18,6 @@ class TestHabitTracking:
         manage_habit.report_one(name="workout", db_file="predefined-habits.db")
 
     def test_delete_habit(self):
-        delete_habit = DeleteHabit(habit_name="walking")
-        delete_habit.delete(db_file="predefined-habits.db")
+        """ Tests the “DeleteHabit” class. """
+        delete_habit = DeleteHabit()
+        delete_habit.delete(db_file="predefined-habits.db", name="walking")
