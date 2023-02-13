@@ -3,6 +3,7 @@ import datetime as dt
 
 
 def habit_names(db_file):
+    """Extracts the habit names from the database file."""
     connection = sqlite3.connect(db_file)
     cursor = connection.cursor()
 
@@ -277,4 +278,3 @@ class DeleteHabit:
         cursor.execute(f"DELETE FROM habit_data "
                        f"WHERE name='{name}'")
         connection.commit()
- 
